@@ -28,9 +28,9 @@ public abstract class Talker {          //Абстрактный класс Бо
         }
     }
 
-    protected synchronized void getMessage() {              //Метод запускающий поток для получения сообщений
-        new Thread(new Runnable() {                         //Прикрутил синхронизацию для избежания коллизий при одновременной
-            @Override                                       //Отправке сообщения клиентом и сервером
+    protected void getMessage() {                           //Метод запускающий поток для получения сообщений
+        new Thread(new Runnable() {                         
+            @Override                                       
             public void run() {
                 while (true) {                              //Бесконечный цикл
                     try {
@@ -45,12 +45,12 @@ public abstract class Talker {          //Абстрактный класс Бо
         }).start();
     }
 
-    protected synchronized void sendMessage() {                                     //Метод отправки сообщения
+    protected void sendMessage() {                                                      //Метод отправки сообщения
         new Thread(new Runnable() {
             @Override
             public void run() {
-                while (true) {                                                      //Бесконечный цикл
-                    String message = sc.nextLine();                                 //Запись сообщения из консоли в переменную
+                while (true) {                                                          //Бесконечный цикл
+                    String message = sc.nextLine();                                     //Запись сообщения из консоли в переменную
                     try {
                         if (message.equals("/end")) {                                   //Если в консоль было введено /end
                             closeConnection();                                          //Закрыть все соединения текущего Болтуна
