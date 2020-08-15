@@ -1,3 +1,8 @@
+package root;
+
+import root.GUI.AuthWindow;
+import root.GUI.ChatWindow;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -10,6 +15,10 @@ public class ClientHandler {
     private Socket socket;
     private DataInputStream in;
     private DataOutputStream out;
+
+    public DataOutputStream getOut() {
+        return out;
+    }
 
     public ClientHandler(Server server, Socket socket) {
         try {
@@ -34,7 +43,7 @@ public class ClientHandler {
                     .start();
 
         } catch (IOException e) {
-           throw new RuntimeException("Client handler was not created");
+            throw new RuntimeException("Client handler was not created");
         }
     }
 
@@ -43,27 +52,14 @@ public class ClientHandler {
     }
 
     public void doAuth() throws IOException {
-        while (true) {
-            System.out.println("Waiting for auth...");
-            String message = in.readUTF();
-            if (message.startsWith("/auth")) {
-                String[] credentials = message.split("\\s");
-                AuthService.Record possibleRecord = server.getAuthService().findRecord(credentials[1], credentials[2]);
-                if (possibleRecord != null) {
-                    if (!server.isOccupied(possibleRecord)) {
-                        record = possibleRecord;
-                        sendMessage("/authok " + record.getName());
-                        server.broadcastMessage("Logged-in " + record.getName());
-                        server.subscribe(this);
-                        break;
-                    } else {
-                        sendMessage(String.format("Current user [%s] is already occupied", possibleRecord.getName()));
-                    }
-                } else {
-                    sendMessage(String.format("User no found"));
-                }
-            }
-        }
+        AuthWindow authorization = new AuthWindow(server);
+        while (authorization.isActive());
+        record = authorization.getPossibleRecord();
+        server.subscribe(this);
+        server.broadcastMessage(String.format("Клиент %s подключился", record.getName()), this);
+        out.writeUTF("/authok");
+        out.writeUTF("/name " + record.getName());
+        out.writeUTF("/logs " + getLogs());
     }
 
     public void sendMessage(String message) {
@@ -74,20 +70,47 @@ public class ClientHandler {
         }
     }
 
+    private String getLogs(){
+        StringBuilder logs = new StringBuilder();
+        for (AuthService.Record r : server.getAuthService().getRecords()) {
+            if (logs.length() == 0) {
+                logs.append(r.getName());
+            }
+            logs.append(" ").append(r.getName());
+        }
+        return logs.toString();
+    }
+
     public void readMessage() throws IOException {
         while (true) {
             String message = in.readUTF();
-            System.out.println(String.format("Incoming message from %s: %s", record.getName(), message));
-            if (message.equals("/end")) {
-                return;
+            if (message.contains("/end")) return;
+            String taker = getAdressee(message);
+            message = formMessage(message, taker);
+            if (taker.equals("Общий чат")) {
+                server.broadcastMessage(message, this);
+            } else {
+                server.unicastMessage(message, taker);
             }
-            server.broadcastMessage(String.format("%s: %s", record.getName(), message));
         }
+    }
+
+    public String getAdressee(String message) {
+        StringBuilder txt = new StringBuilder(message);
+        txt.setLength(txt.indexOf("/addr"));
+        txt.deleteCharAt(0);
+        return txt.toString().trim();
+    }
+
+    public String formMessage(String message, String addressee) {
+        StringBuilder txt = new StringBuilder(message);
+        txt.delete(0, txt.indexOf("/addr") + 5);
+        return txt.toString();
     }
 
     public void closeConnection() {
         server.unsubscribe(this);
-        server.broadcastMessage(record.getName() + " left chat");
+        server.broadcastMessage(record.getName() + " отключился", this);
         try {
             in.close();
         } catch (IOException e) {
