@@ -1,27 +1,29 @@
 public class Main {
     public static void main(String[] args) {
-        OneLinkedList names = new OneLinkedList();
-        names.add("Mike");
-        names.add("John");
-        names.add("Jakub");
+        DualLinkedList names = new DualLinkedList();
+        names.add("Иван");
+        names.add("Армен");
+        names.add("Сократ");
+        names.add("Рамзан Ахматович");
+        names.add("Гришка");
         System.out.println(names);
-        // code....
-        names.add("Marry");
-        names.add("Kaizerine");
+        names.replace(3,"Арсен");
         System.out.println(names);
-
-        names.add(5, "Tomas");
-        names.add(4, "UPD");
-        names.add(1, "UPD1");
-//        names.add(10, "NEW");
+        names.replace(0,"Кирилл");
         System.out.println(names);
-
-        System.out.println("Size: " + names.size());
-
-        OneLinkedList.Iterator iterator = names.iterator();
-        while (iterator.hasNext()) {
-            String value = iterator.next();
-            System.out.println(value);
+        names.replace(1,"Арсен");
+        System.out.println(names);
+        System.out.println(names.getSize());
+        names.delete(2);
+        System.out.println(names);
+        names.replace(3,"Арсен");
+        System.out.println(names);
+        System.out.println(names.iterator().current());
+        while (names.iterator().hasNext()){
+            System.out.println(names.iterator().next());
         }
+        System.out.println(names.getSize());
+        names.deleteAll("Арсен");
+        System.out.println(names);
     }
 }
