@@ -55,13 +55,13 @@ public class AuthWindow extends JFrame {
         add(message);
         setVisible(true);
         while (!connected) Thread.onSpinWait();
-        loading();
+//        loading();
         dispose();
     }
 
     protected void setMessage(String message) {
         Color color;
-        if (message.contains("Авторизация")||message.contains("создана")) {
+        if (message.contains("Авторизация") || message.contains("создана")) {
             color = new Color(29, 111, 3);
 
         } else {
@@ -91,8 +91,8 @@ public class AuthWindow extends JFrame {
     }
 
     private void registration() {
-       new RegWindow(server,this);
-       password.grabFocus();
+        new RegWindow(server, this);
+        password.grabFocus();
     }
 
     public AuthService.Record getPossibleRecord() {

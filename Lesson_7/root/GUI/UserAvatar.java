@@ -6,12 +6,12 @@ import java.awt.*;
 public class UserAvatar extends JPanel {
 
     private Color color;
-    private JButton currentButton;
+    private JLabel currentButton;
     private JLabel userName = new JLabel();
     private Font currentFont;
     private int w;
 
-    public UserAvatar(String name, Color color, JButton j) {
+    public UserAvatar(String name, Color color, JLabel j) {
         this.color = color;
         this.currentButton = j;
         setBounds(0, 0, w, w);
@@ -30,7 +30,6 @@ public class UserAvatar extends JPanel {
         userName.setText(txt.toString());
         userName.setHorizontalAlignment(SwingConstants.CENTER);
         userName.setVerticalAlignment(SwingConstants.CENTER);
-//        userName.setMinimumSize(new Dimension(10,50));
         userName.setForeground(Color.WHITE);
     }
 

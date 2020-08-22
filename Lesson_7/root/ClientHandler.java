@@ -53,13 +53,15 @@ public class ClientHandler {
 
     public void doAuth() throws IOException {
         AuthWindow authorization = new AuthWindow(server);
-        while (authorization.isActive());
+        while (authorization.isActive()) ;
         record = authorization.getPossibleRecord();
         server.subscribe(this);
-        server.broadcastMessage(String.format("Клиент %s подключился", record.getName()), this);
+        server.broadcastMessage(String.format("[Сервер]: Клиент %s подключился", record.getName()));
+        server.broadcastMessage(String.format("/userOnline %s", record.getName()));
         out.writeUTF("/authok");
         out.writeUTF("/name " + record.getName());
         out.writeUTF("/logs " + getLogs());
+        out.writeUTF("/online " + server.getClientsOnline());
     }
 
     public void sendMessage(String message) {
@@ -70,7 +72,7 @@ public class ClientHandler {
         }
     }
 
-    private String getLogs(){
+    private String getLogs() {
         StringBuilder logs = new StringBuilder();
         for (AuthService.Record r : server.getAuthService().getRecords()) {
             if (logs.length() == 0) {
@@ -86,7 +88,7 @@ public class ClientHandler {
             String message = in.readUTF();
             if (message.contains("/end")) return;
             String taker = getAdressee(message);
-            message = formMessage(message, taker);
+            message = formMessage(message);
             if (taker.equals("Общий чат")) {
                 server.broadcastMessage(message, this);
             } else {
@@ -102,7 +104,7 @@ public class ClientHandler {
         return txt.toString().trim();
     }
 
-    public String formMessage(String message, String addressee) {
+    public String formMessage(String message) {
         StringBuilder txt = new StringBuilder(message);
         txt.delete(0, txt.indexOf("/addr") + 5);
         return txt.toString();
@@ -110,7 +112,7 @@ public class ClientHandler {
 
     public void closeConnection() {
         server.unsubscribe(this);
-        server.broadcastMessage(record.getName() + " отключился", this);
+        server.broadcastMessage(String.format("[Сервер]: Клиент  %s  отключился", record.getName()), this);
         try {
             in.close();
         } catch (IOException e) {
@@ -126,6 +128,7 @@ public class ClientHandler {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        server.broadcastMessage(String.format("/userOffline %s", record.getName()));
     }
 
     @Override

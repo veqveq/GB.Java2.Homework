@@ -37,6 +37,14 @@ public class Server {
         return authService;
     }
 
+    public String getClientsOnline() {
+        StringBuilder onlineList = new StringBuilder();
+        for (ClientHandler ch : clientHandlers) {
+            onlineList.append(ch.getRecord().getName()).append(" ");
+        }
+        return onlineList.toString();
+    }
+
     public synchronized boolean isOccupied(AuthService.Record record) {
         for (ClientHandler ch : clientHandlers) {
             if (ch.getRecord().equals(record)) {
@@ -59,6 +67,12 @@ public class Server {
             if (!sender.equals(ch)) {
                 ch.sendMessage(message);
             }
+        }
+    }
+
+    public synchronized void broadcastMessage(String message) {
+        for (ClientHandler ch : clientHandlers) {
+            ch.sendMessage(message);
         }
     }
 

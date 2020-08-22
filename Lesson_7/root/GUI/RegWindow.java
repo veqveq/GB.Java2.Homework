@@ -93,8 +93,9 @@ public class RegWindow extends JFrame {
             return;
         }
         server.getAuthService().setRecord(name.getText(), login.getText(), password.getText());
+        server.broadcastMessage(String.format("/userReg %s",name.getText()));
+        server.broadcastMessage(String.format("[Сервер]: Клиент %s зарегистрировался",name.getText()));
         authWindow.setLogin(login.getText());
-        authWindow.setVisible(true);
         authWindow.setMessage("Учётная запись создана!");
         dispose();
     }
@@ -155,5 +156,11 @@ public class RegWindow extends JFrame {
             }
         }else return false;
         return true;
+    }
+
+    @Override
+    public void dispose() {
+        authWindow.setVisible(true);
+        super.dispose();
     }
 }
